@@ -6,3 +6,5 @@ passlib[bcrypt]
 python-dotenv
 pydantic-settings
 Jinja2==3.1.2
+pyjwt[crypto]
+httpx

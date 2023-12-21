@@ -144,3 +144,9 @@ async def read_own_items(
     current_user: Annotated[User, Depends(get_current_active_user)]
 ):
     return [{"item_id": "Foo", "owner": current_user.username}]
+
+
+@app.get("/token/")
+async def read_own_items(token: Annotated[str, Depends(oauth2_scheme)]):
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    return {"token": token, "payload": payload}
