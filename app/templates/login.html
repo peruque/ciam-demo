@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="static/styles.css" />
+    <title>CIAM Demo</title>
+  </head>
+  <body>
+    <h1>Sign Into Your Profile</h1>
+    <html>
+      <head>
+        <title>Login</title>
+      </head>
+      <body>
+        <span
+          >You are logged out. Click button below to login using AWS
+          Cognito.</span
+        >
+        <form action="{{ auth_url }}" method="get">
+          <input type="hidden" name="response_type" value="code" />
+          <input type="hidden" name="client_id" value="{{ client_id }}" />
+          <input type="hidden" name="redirect_uri" value="{{redirect_uri}}" />
+          <input type="submit" style="height: 40px" value="Sign In" />
+        </form>
+      </body>
+    </html>
+  </body>
+</html>

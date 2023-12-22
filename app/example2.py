@@ -26,24 +26,6 @@ TOKEN_URL = f"https://{COGNITO_DOMAIN}/oauth2/token"
 LOGOUT_URL = f"https://{COGNITO_DOMAIN}/logout"
 
 
-async def get_cognito_jwt_secret() -> str:
-    JWKS_URL = f"https://cognito-idp.{COGNITO_REGION}.amazonaws.com/{COGNITO_USER_POOL_ID}/.well-known/jwks.json"
-
-    async with httpx.AsyncClient() as client:
-        response = await client.get(JWKS_URL)
-
-    if response.status_code != 200:
-        raise Exception("Failed to fetch JWKS from Cognito")
-
-    jwks = response.json()
-    for key_data in jwks["keys"]:
-        if key_data["alg"] == "RS256" and key_data["use"] == "sig":
-            key = jwk.construct(key_data)
-            return key.to_pem().decode("utf-8")
-
-    raise Exception("Failed to find a suitable public key in JWKS")
-
-
 async def get_token(request: Request):
     token = request.query_params.get("token")
 

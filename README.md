@@ -74,3 +74,5 @@ You can view the Hosted UI by going to Clients for the user pool.
    "redirect_uri": COGNITO_REDIRECT_URI,
 }
 ```
+
+Good example: https://github.com/robotlearner001/blog/blob/main/fastapi-with-aws-cognito/main.py

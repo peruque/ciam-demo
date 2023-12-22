@@ -7,6 +7,10 @@
     <title>Document</title>
   </head>
   <body>
-    <h1>Item ID: {{ id }}</h1>
+    <h1>You are signed in!</h1>
+    <span>Welcome user, {{username}}</span>
+    <form action="{{ logout_url }}" method="get">
+      <input type="submit" style="height: 40px" value="Sign Out" />
+    </form>
   </body>
 </html>
