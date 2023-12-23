@@ -84,6 +84,7 @@ async def user_login_page(
         "auth_url": f"https://{settings.cognito_domain}/oauth2/authorize",
         "client_id": settings.cognito_client_id,
         "redirect_uri": settings.cognito_redirect_uri,
+        "scope": "phone openid email",
     }
     return templates.TemplateResponse("login.html", context)
 
