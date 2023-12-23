@@ -1,11 +1,16 @@
 ## Fast API MVP of CIAM Demo
 
 - [x] Use Settings for env vars instead of dot_env
-- [ ] Fix logging out so that token is no longer valid (or figure out what is the OAuth spec on logging out)
-- [ ] Use access token in header
-- [ ] Store access token in HttpOnly Cookie
+- [x] Store access token in HttpOnly Cookie
+  - delete when logging out
+- [x] Use access token in header
 - [ ] Don't hardcode the logout redirect url
-- [ ] Extract given and family name for the user
+- [ ] Extract given and family name for the user and display on profile page
+  - Need to change scope to just "openid"
+  - Putting "openid" in the scope will return an id_token
+  - attributes will be contained in the id_token not access_token
+- [ ] Fix logging out so that token is no longer valid (or figure out what is the OAuth spec on logging out)
+  - The access token is still valid. Need to delete the token from the cookies
 - [ ] Organize Endpoints and Enhance HTML
   - [x] Login Page to login
   - [x] Home Page to logout

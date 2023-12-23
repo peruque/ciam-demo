@@ -1,5 +1,5 @@
 from functools import lru_cache
-from fastapi import FastAPI, Depends, Request, HTTPException, status
+from fastapi import FastAPI, Depends, Request, HTTPException, status, Cookie
 from typing_extensions import Annotated
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -27,19 +27,17 @@ def get_settings():
     return config.Settings()
 
 
-async def get_token(request: Request):
-    token = request.query_params.get("token")
-
-    if not token:
+async def get_access_token(access_token: Annotated[str | None, Cookie()]):
+    if not access_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is required"
         )
-    return token
+    return access_token
 
 
 async def get_current_user(
     settings: Annotated[config.Settings, Depends(get_settings)],
-    token: str = Depends(get_token),
+    token: str = Depends(get_access_token),
 ) -> str:
     JWKS_URL = f"https://cognito-idp.{settings.cognito_region}.amazonaws.com/{settings.cognito_user_pool_id}/.well-known/jwks.json"
     client = PyJWKClient(JWKS_URL)
@@ -64,16 +62,6 @@ async def get_current_user(
         )
 
 
-@app.get("/info")
-async def info(settings: Annotated[config.Settings, Depends(get_settings)]):
-    return {"app_name": settings.app_name}
-
-
-@app.get("/items/{id}", response_class=HTMLResponse)
-async def read_item(request: Request, id: str):
-    return templates.TemplateResponse("item.html", {"request": request, "id": id})
-
-
 @app.get("/", response_class=HTMLResponse)
 async def user_login_page(
     request: Request,
@@ -84,7 +72,7 @@ async def user_login_page(
         "auth_url": f"https://{settings.cognito_domain}/oauth2/authorize",
         "client_id": settings.cognito_client_id,
         "redirect_uri": settings.cognito_redirect_uri,
-        "scope": "phone openid email",
+        "scope": "openid",
     }
     return templates.TemplateResponse("login.html", context)
 
@@ -112,7 +100,16 @@ async def callback(
         )
     token = response.json()
 
-    return RedirectResponse(url=f"/home?token={token['access_token']}")
+    response = RedirectResponse(url="/home")
+
+    # Set token cookies as httponly prevents client-side scripts from accessing
+    # the cookie. This adds an extra layer of security by reducing the risk of
+    # XSS attacks.
+    response.set_cookie("access_token", token["access_token"], httponly=True)
+    response.set_cookie("id_token", token["id_token"], httponly=True)
+    response.set_cookie("refresh_token", token["refresh_token"], httponly=True)
+
+    return response
 
 
 @app.get("/logout")
@@ -125,21 +122,35 @@ async def logout(
 
     logout_uri = "http%3A%2F%2Flocalhost%3A8000"
 
-    return RedirectResponse(
+    response = RedirectResponse(
         url=f"{LOGOUT_URL}?client_id={settings.cognito_client_id}&logout_uri={logout_uri}&token={token}"
     )
+
+    response.delete_cookie("access_token")
+    response.delete_cookie("id_token")
+    response.delete_cookie("refresh_token")
+
+    return response
 
 
 @app.get("/home", response_class=HTMLResponse)
 async def home_page(
     request: Request,
-    settings: Annotated[config.Settings, Depends(get_settings)],
     username: str = Depends(get_current_user),
 ):
-    token = request.query_params.get("token")
     context = {
         "request": request,
         "username": username,
-        "logout_url": f"logout?token={token}",
     }
     return templates.TemplateResponse("home.html", context)
+
+
+@app.get("/profile", response_class=HTMLResponse)
+async def profile_page(
+    request: Request,
+    username: str = Depends(get_current_user),
+):
+    context = {
+        "request": request,
+    }
+    return templates.TemplateResponse("profile.html", context)

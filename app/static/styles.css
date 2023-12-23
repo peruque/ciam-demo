@@ -6,3 +6,17 @@ body {
 h1 {
     color: Black;
 }
+
+.button-container {
+    margin-top: 12px;
+    display: flex;
+    width: 300px;
+    flex-direction: row;
+}
+
+button {
+    background-color: #1976d2;
+    color: white;
+    height: 40px;
+    margin-right: 16px;
+}
