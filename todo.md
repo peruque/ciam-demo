@@ -11,15 +11,15 @@
   - [x] Home Page to logout
   - [x] Two main content pages that require a token
   - [x] Add CSS
-- [ ] Use Single main Jinja Template
-- [ ] Add Cross-Origin Resource Sharing (CORS)
-- [ ] Redirect to Login Screen if access is denied
-- [ ] Implement refresh token
-- [ ] Don't hardcode the logout redirect url
-- [ ] Extract given and family name for the user and display on profile page
+- [x] Use Single main Jinja Template
+- [x] Don't hardcode the logout redirect url
+- [x] Extract given and family name for the user and display on profile page
   - Need to change scope to just "openid"
   - Putting "openid" in the scope will return an id_token
   - attributes will be contained in the id_token not access_token
+- [ ] Add Cross-Origin Resource Sharing (CORS)
+- [ ] Redirect to Login Screen if access is denied
+- [ ] Implement refresh token
 - [ ] Add tests to the repo
 - [ ] Update Readme
 

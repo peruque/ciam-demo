@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     cognito_client_id: str = ""
     cognito_client_secret: str = ""
     cognito_redirect_uri: str = ""
+    cognito_logout_redirect_uri: str = ""
     cognito_region: str = ""
     cognito_user_pool_id: str = ""
 
