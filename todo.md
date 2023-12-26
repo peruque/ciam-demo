@@ -11,6 +11,10 @@
   - [x] Home Page to logout
   - [x] Two main content pages that require a token
   - [x] Add CSS
+- [ ] Use Single main Jinja Template
+- [ ] Add Cross-Origin Resource Sharing (CORS)
+- [ ] Redirect to Login Screen if access is denied
+- [ ] Implement refresh token
 - [ ] Don't hardcode the logout redirect url
 - [ ] Extract given and family name for the user and display on profile page
   - Need to change scope to just "openid"
