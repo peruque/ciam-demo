@@ -30,49 +30,25 @@ def get_settings():
     return config.Settings()
 
 
-class User(BaseModel):
+class UserInfo(BaseModel):
     id: str
+    username: str
     first_name: str
     last_name: str
     email: str
 
 
-async def get_access_token(access_token: Annotated[str | None, Cookie()]):
+async def get_verified_access_token(
+    settings: Annotated[config.Settings, Depends(get_settings)],
+    access_token: Annotated[str | None, Cookie()],
+):
     if not access_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Access Token is required"
         )
-    return access_token
 
-
-async def get_id_token(id_token: Annotated[str | None, Cookie()]):
-    if not id_token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="ID Token is required"
-        )
-    return id_token
-
-
-async def get_current_user(
-    settings: Annotated[config.Settings, Depends(get_settings)],
-    access_token: str = Depends(get_access_token),
-    id_token: str = Depends(get_id_token),
-) -> User:
     try:
-        access_payload = decode_token(access_token, settings)
-        id_payload = decode_token(id_token, settings)
-
-        if access_payload["sub"] != id_payload["sub"]:
-            raise Exception(
-                "Access denied: access token and id token subjects do not match."
-            )
-
-        return User(
-            id=access_payload["sub"],
-            first_name=id_payload["given_name"],
-            last_name=id_payload["family_name"],
-            email=id_payload["email"],
-        )
+        verify_access_token(access_token, settings)
     except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired"
@@ -83,8 +59,10 @@ async def get_current_user(
             status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token"
         )
 
+    return access_token
 
-def decode_token(token: str, settings: config.Settings) -> dict:
+
+def verify_access_token(token: str, settings: config.Settings) -> str:
     JWKS_URL = f"https://cognito-idp.{settings.cognito_region}.amazonaws.com/{settings.cognito_user_pool_id}/.well-known/jwks.json"
     client = PyJWKClient(JWKS_URL)
     header = jwt.get_unverified_header(token)
@@ -94,9 +72,60 @@ def decode_token(token: str, settings: config.Settings) -> dict:
         jwt=token,
         key=public_key,
         algorithms=["RS256"],
-        options={"verify_aud": False, "verify_signature": True},
+        options={"verify_signature": True},
     )
-    return payload
+    return payload["sub"]
+
+
+async def get_current_user_info(
+    settings: Annotated[config.Settings, Depends(get_settings)],
+    access_token: str = Depends(get_verified_access_token),
+) -> UserInfo:
+    headers = {
+        "Content-Type": "application/x-amz-json-1.1",
+        "Authorization": f"Bearer {access_token}",
+    }
+    async with httpx.AsyncClient() as client:
+        TOKEN_URL = f"https://{settings.cognito_domain}/oauth2/userInfo"
+        response = await client.get(TOKEN_URL, headers=headers)
+
+    if response.status_code != 200:
+        print("GOT HERE", response.json())
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid code"
+        )
+    user_info = response.json()
+
+    print("new id_token", json.dumps(user_info, indent=2))
+
+    return UserInfo(
+        id=user_info["sub"],
+        username=user_info["username"],
+        first_name=user_info["given_name"],
+        last_name=user_info["family_name"],
+        email=user_info["email"],
+    )
+
+
+async def get_id_token(access_token: str, settings: config.Settings) -> str:
+    headers = {
+        "Content-Type": "application/x-amz-json-1.1",
+        "Authorization": f"Bearer {access_token}",
+    }
+    async with httpx.AsyncClient() as client:
+        TOKEN_URL = f"https://{settings.cognito_domain}/oauth2/userInfo"
+        response = await client.get(TOKEN_URL, headers=headers)
+
+    if response.status_code != 200:
+        print("GOT HERE", response.json())
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid code"
+        )
+    token = response.json()
+
+    print("new id_token", json.dumps(token, indent=2))
+
+    return ""
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -143,7 +172,6 @@ async def callback(
     # the cookie. This adds an extra layer of security by reducing the risk of
     # XSS attacks.
     response.set_cookie("access_token", token["access_token"], httponly=True)
-    response.set_cookie("id_token", token["id_token"], httponly=True)
     response.set_cookie("refresh_token", token["refresh_token"], httponly=True)
 
     return response
@@ -164,7 +192,6 @@ async def logout(
     )
 
     response.delete_cookie("access_token")
-    response.delete_cookie("id_token")
     response.delete_cookie("refresh_token")
 
     return response
@@ -173,7 +200,7 @@ async def logout(
 @app.get("/home", response_class=HTMLResponse)
 async def home_page(
     request: Request,
-    user: User = Depends(get_current_user),
+    user: UserInfo = Depends(get_current_user_info),
 ):
     context = {
         "request": request,
@@ -185,7 +212,7 @@ async def home_page(
 @app.get("/profile", response_class=HTMLResponse)
 async def profile_page(
     request: Request,
-    user: User = Depends(get_current_user),
+    user: UserInfo = Depends(get_current_user_info),
 ):
     context = {
         "request": request,

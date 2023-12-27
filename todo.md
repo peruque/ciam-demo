@@ -17,10 +17,16 @@
   - Need to change scope to just "openid"
   - Putting "openid" in the scope will return an id_token
   - attributes will be contained in the id_token not access_token
+- [x] Add tests to the repo
+- [x] Fetch user info instead of storing id_token in cookie
+  - Use the userinfo endpoint: https://docs.aws.amazon.com/cognito/latest/developerguide/userinfo-endpoint.html
 - [ ] Add Cross-Origin Resource Sharing (CORS)
 - [ ] Redirect to Login Screen if access is denied
 - [ ] Implement refresh token
-- [ ] Add tests to the repo
 - [ ] Update Readme
 
 ## Create User Pool Using Terraform
+
+## Deploy to EC2
+
+- Only run for short time to save money
