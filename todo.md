@@ -20,10 +20,11 @@
 - [x] Add tests to the repo
 - [x] Fetch user info instead of storing id_token in cookie
   - Use the userinfo endpoint: https://docs.aws.amazon.com/cognito/latest/developerguide/userinfo-endpoint.html
-- [ ] Update Readme
 
 ## Create User Pool Using Terraform
 
 ## Deploy to EC2
 
-- Only run for short time to save money
+- [ ] Create basic EC2 launch
+- [ ] Only allow HTTPS traffic
+- [ ] Deploy Source Code zip file
