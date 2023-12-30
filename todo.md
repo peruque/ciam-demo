@@ -23,8 +23,14 @@
 
 ## Create User Pool Using Terraform
 
-## Deploy to EC2
+- [ ] Use terraform to create User pool
+- [ ] Use localhost for redirects
 
-- [ ] Create basic EC2 launch
-- [ ] Only allow HTTPS traffic
-- [ ] Deploy Source Code zip file
+## README
+
+- [ ] How to Run terraform code
+  - Specify the variables to be set
+- [ ] Intended to be used locally for demo and should have redirect to HTTPS
+- [ ] How to Run Python Code
+  - [ ] Install libraries
+  - [ ] Run project
