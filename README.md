@@ -11,23 +11,32 @@ uvicorn api.example:app --reload
 ## Create AWS Cognito User Pool via Terraform
 
 1. Create state bucket
-2. Create file for backend configuration named: `backend.conf`
+2. Create state lock Dynamo DB Table
+
+- Create via management console
+- Specify the following
+  - name
+  - Partition key: `LockID` string
+  - Capacity mode: "On Demand"
+
+3. Create file for backend configuration named: `backend.conf`
 
    ```conf
    bucket = "<state bucket name>"
    key = "<state file name>.tfstate"
    region = "<AWS region>"
    profile = "<AWS profile>"
+   dynamodb_table = "<Name of Dynamo DB table>"
    ```
 
-3. Create file for terraform variables named: `terraform.tfvars`
+4. Create file for terraform variables named: `terraform.tfvars`
 
    ```conf
    aws_region  = "<AWS region>"
    aws_profile = "<AWS profile>"
    ```
 
-4. Initialize terraform:
+5. Initialize terraform:
    ```
    terraform init -backend-config=backend.conf
    ```

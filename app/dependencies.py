@@ -60,13 +60,10 @@ async def get_current_user_info(
         response = await client.get(TOKEN_URL, headers=headers)
 
     if response.status_code != 200:
-        print("GOT HERE", response.json())
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid code"
         )
     user_info = response.json()
-
-    print("new id_token", json.dumps(user_info, indent=2))
 
     return UserInfo(
         id=user_info["sub"],
