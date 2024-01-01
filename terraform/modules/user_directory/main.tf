@@ -76,6 +76,11 @@ resource "aws_cognito_user_group" "basic" {
   name         = "basic"
 }
 
+resource "aws_cognito_user_group" "green_team" {
+  user_pool_id = aws_cognito_user_pool.pool.id
+  name         = "green-team"
+}
+
 resource "aws_cognito_user_pool_domain" "pool" {
   user_pool_id = aws_cognito_user_pool.pool.id
   domain       = var.user_pool_name
@@ -96,5 +101,11 @@ resource "aws_cognito_user" "jndoe" {
 resource "aws_cognito_user_in_group" "jndoe_basic" {
   user_pool_id = aws_cognito_user_pool.pool.id
   group_name   = aws_cognito_user_group.basic.name
+  username     = aws_cognito_user.jndoe.username
+}
+
+resource "aws_cognito_user_in_group" "jndoe_green_team" {
+  user_pool_id = aws_cognito_user_pool.pool.id
+  group_name   = aws_cognito_user_group.green_team.name
   username     = aws_cognito_user.jndoe.username
 }

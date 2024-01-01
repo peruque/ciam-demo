@@ -7,11 +7,11 @@
       <div class="row">
         <div class="col-md-6">
           <dl class="row">
-            <dt class="col-sm-3">User ID:</dt>
-            <dd class="col-sm-9">{{user.id}}</dd>
-
             <dt class="col-sm-3">Username:</dt>
             <dd class="col-sm-9">{{user.username}}</dd>
+
+            <dt class="col-sm-3">User ID:</dt>
+            <dd class="col-sm-9">{{user.id}}</dd>
 
             <dt class="col-sm-3">First Name:</dt>
             <dd class="col-sm-9">{{user.first_name}}</dd>
@@ -22,6 +22,16 @@
             <dt class="col-sm-3">Email:</dt>
             <dd class="col-sm-9">{{user.email}}</dd>
           </dl>
+          <div class="row mt-4">
+            <div class="col-md-6">
+              <h4>User Groups</h4>
+              <ul class="list-group">
+                {% for group in user.groups%}
+                <li class="list-group-item">{{group}}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>
