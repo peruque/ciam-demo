@@ -6,6 +6,9 @@ import httpx
 from jwt import PyJWKClient
 import jwt
 from app.models.user import UserInfo, AccessTokenPayload
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 async def get_verified_access_token_payload(
@@ -24,8 +27,8 @@ async def get_verified_access_token_payload(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired"
         )
-    except Exception as exp:
-        print(exp)
+    except Exception:
+        logger.exception("Failed to verify access token.")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token"
         )

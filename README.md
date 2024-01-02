@@ -1,11 +1,11 @@
-# Customer Identity Access Management Demonstration
+# Consumer Identity Access Management Demonstration
 
 ## Running Locally
 
 ### Running Example
 
 ```
-uvicorn api.example:app --reload
+uvicorn app.main:app --reload
 ```
 
 ## Create AWS Cognito User Pool via Terraform
