@@ -2,10 +2,26 @@
 
 ## Running Locally
 
+### Initial Setup
+
+Navigate to the root directory of the project. Run commands:
+
+```
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements-dev.txt
+```
+
 ### Running Example
 
 ```
 uvicorn app.main:app --reload
+```
+
+or run
+
+```
+python3 run.py
 ```
 
 ## Create AWS Cognito User Pool via Terraform
@@ -40,8 +56,6 @@ uvicorn app.main:app --reload
    ```
    terraform init -backend-config=backend.conf
    ```
-
-## Working with User Pool
 
 ### Cognito Host UI
 
@@ -79,81 +93,9 @@ You can view the Hosted UI by going to Clients for the user pool.
    "grant_type": "authorization_code",
    "client_id": COGNITO_CLIENT_ID,
    "client_secret": COGNITO_CLIENT_SECRET,
-   "code": code,
+   "code": <authorization code>,
    "redirect_uri": COGNITO_REDIRECT_URI,
 }
 ```
 
 Good example: https://github.com/robotlearner001/blog/blob/main/fastapi-with-aws-cognito/main.py
-
-## EC2 Instance Setup
-
-- Configuration of Example
-
-  - Name
-    - Specify this in the tags:
-    ```
-      tags = {
-         Name = "nano-instance"
-      }
-    ```
-  - AMI image
-    - ami-079db87dc4c10ac91
-      - "Amazon Linux 2023 AMI 2023.3.20231218.0 x86_64 HVM kernel-6.1"
-      - free tier
-  - Key Pair (Login)
-    - You can use a key pair to securely connect to your instance via ssh
-    - Create a new key pair
-      - Name: EC2 Tutorial 2
-      - Key pair type: RSA
-      - private key file format: .pem
-        - .ppk is for Windows 8 and earlier so don't use this pretty much ever
-  - Network Settings
-    - Enable auto-assign public IP
-    - Security Group
-      - Like a Firewall to limit IP and ports
-      - Allow SSH traffic from an IP
-      - For this example allow HTTP traffic from internet
-        - Should enable HTTPs for actual use
-        - Since only HTTP is allowed, you need to use http in the browser to send request to instance
-  - Storage
-    - specify the EBS general purpose SSD
-    - 1 Volume of 8 GiB (gp3) should be free
-  - Advanced Details
-    - Specify boot script in the user data section
-  - Total Cost
-
-    - EBS Storage: $0.08 x 8 GiB = $0.64 per month
-    - t2.micro: $0.0116 x 730 hours = $8.47 per month
-    - t2.nano: $0.0058 x 730 hours = $4.23 per month
-
-      - This may not have enough memory
-
-    - Other fees apply for data transfer
-
-### ssh into instance
-
-You will need to the .pem file that is associated to your EC2 instance.
-
-1. Ensure that security group allows port 22 and your IP address (allow all IP addresses)
-2. Change access for .pem file. Navigate to the location of the .pem file. Enter command:
-
-```
-chmod 0400 my-pem-file.pem
-```
-
-3. Run ssh command to login. You need to use the public IP address of the EC2 instance.
-
-```
-ssh -i my-pem-file.pem.pem ec2-user@123.456.789.10
-```
-
-4. logout by entering:
-
-```
-logout
-```
-
-### Provide EC2 Instance with a Role
-
-- Associating a role to the instance will allow the instance to use AWS resources
